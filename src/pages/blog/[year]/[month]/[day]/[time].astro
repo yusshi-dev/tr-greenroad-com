@@ -30,6 +30,11 @@ const { Content } = await render(post);
 const posts = await getSortedPosts();
 const recent = posts.slice(0, 5);
 
+/* 前後の記事（posts は新しい順なので、ひとつ前の要素が新しい記事になる） */
+const postIndex = posts.findIndex((p) => p.id === post.id);
+const newer = postIndex > 0 ? posts[postIndex - 1] : undefined;
+const older = postIndex >= 0 && postIndex < posts.length - 1 ? posts[postIndex + 1] : undefined;
+
 const categoryCounts = new Map<string, number>();
 for (const p of posts) {
   categoryCounts.set(p.data.category, (categoryCounts.get(p.data.category) ?? 0) + 1);
@@ -65,6 +70,29 @@ const { year: postYear, month: postMonth } = getJstParts(post.data.published_at)
           </header>
           <div class="content"><Content /></div>
           <p class="entry-next"><a href="/blog/">ブログ一覧へ戻る</a></p>
+
+          {
+            (newer || older) && (
+              <nav class="post-pager" aria-label="前後の記事">
+                {newer && (
+                  <a class="post-pager__item post-pager__item--newer" href={postPath(newer)}>
+                    <span class="post-pager__label">
+                      <span aria-hidden="true">«</span> 新しい記事
+                    </span>
+                    <span class="post-pager__title">{newer.data.title}</span>
+                  </a>
+                )}
+                {older && (
+                  <a class="post-pager__item post-pager__item--older" href={postPath(older)}>
+                    <span class="post-pager__label">
+                      古い記事 <span aria-hidden="true">»</span>
+                    </span>
+                    <span class="post-pager__title">{older.data.title}</span>
+                  </a>
+                )}
+              </nav>
+            )
+          }
         </article>
 
         <aside class="sidebar">

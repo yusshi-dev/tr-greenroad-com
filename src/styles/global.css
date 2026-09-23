@@ -382,6 +382,21 @@ h1,h2,h3,h4{line-height:1.5}
 }
 .entry-next a:hover{background:var(--theme);color:#fff}
 
+/* 記事末の前後ナビ（pixelog.net と同じ構成：上に区切り線、2カラム） */
+.post-pager{
+  display:grid;gap:32px;
+  margin-top:56px;padding-top:36px;
+  border-top:1px solid var(--border);
+}
+.post-pager__item{display:flex;flex-direction:column;gap:6px;min-width:0}
+.post-pager__label{font-size:var(--text-s2);color:var(--text-sub)}
+.post-pager__title{font-size:var(--text-s1);font-weight:700;line-height:1.5;transition:color .2s}
+.post-pager__item:hover .post-pager__title{color:var(--theme)}
+@media (min-width:768px){
+  .post-pager{grid-template-columns:1fr 1fr}
+  .post-pager__item--older{grid-column:2;align-items:flex-end;text-align:right}
+}
+
 /* ---------- article 2-column layout ---------- */
 /* 本文とサイドバーの間は広めに取る（サイドバーは少し狭く） */
 .article-layout{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:64px;align-items:start}
