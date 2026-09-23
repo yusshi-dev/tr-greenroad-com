@@ -1,6 +1,6 @@
 ---
 title: インテリアリペア
-summary: レザーシートやダッシュボードなど、内装の傷みを交換せずに修復いたします。
+summary: レザーシートやダッシュボードなど、内装の傷みを交換せずに修復します。
 image: svc-interior.webp
 hero: hero-interior.webp
 hero_overlay: beige
