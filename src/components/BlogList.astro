@@ -1,0 +1,90 @@
+---
+import PostCard from "./PostCard.astro";
+import { categoryPath, getEyecatch, pageUrl, postPath, type Category, type Post } from "../utils/blog";
+
+interface Props {
+  posts: Post[];
+  categories: Category[];
+  currentCategory?: string;
+  page: number;
+  totalPages: number;
+  basePath: string;
+}
+
+const { posts, categories, currentCategory, page, totalPages, basePath } = Astro.props;
+
+const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+---
+
+<div class="blog-filter">
+  <a href="/blog/" class={currentCategory ? undefined : "is-current"}>すべて</a>
+  {
+    categories.map((category) => (
+      <a
+        href={categoryPath(category.name)}
+        class={currentCategory === category.name ? "is-current" : undefined}
+      >
+        {category.name}
+      </a>
+    ))
+  }
+</div>
+
+<ul class="post-grid">
+  {
+    posts.map((post) => (
+      <PostCard
+        href={postPath(post)}
+        image={getEyecatch(post)}
+        date={post.data.published_at}
+        category={post.data.category}
+        title={post.data.title}
+      />
+    ))
+  }
+</ul>
+
+<div class="pager">
+  {
+    page > 1 ? (
+      <a href={pageUrl(basePath, page - 1)}>
+        <span aria-hidden="true">«</span> 新しい記事
+      </a>
+    ) : (
+      <span class="pager__disabled">
+        <span aria-hidden="true">«</span> 新しい記事
+      </span>
+    )
+  }
+  <span class="pager__pages">
+    <select class="pager__select" id="page-select" aria-label="ページを選択">
+      {pages.map((p) => (
+        <option value={pageUrl(basePath, p)} selected={p === page}>
+          {p}
+        </option>
+      ))}
+    </select>
+    <span class="pager__total">/ {totalPages}</span>
+  </span>
+  {
+    page < totalPages ? (
+      <a href={pageUrl(basePath, page + 1)}>
+        古い記事 <span aria-hidden="true">»</span>
+      </a>
+    ) : (
+      <span class="pager__disabled">
+        古い記事 <span aria-hidden="true">»</span>
+      </span>
+    )
+  }
+</div>
+
+<script>
+  // ページ番号の選択肢はビルド時にHTMLへ出しているので、選ばれたら移動するだけでよい
+  const pageSelect = document.getElementById("page-select");
+  if (pageSelect instanceof HTMLSelectElement) {
+    pageSelect.addEventListener("change", () => {
+      if (pageSelect.value) window.location.href = pageSelect.value;
+    });
+  }
+</script>

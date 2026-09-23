@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import SiteHeader from "../../../../../components/SiteHeader.astro";
+import SiteFooter from "../../../../../components/SiteFooter.astro";
+import BlogList from "../../../../../components/BlogList.astro";
+import {
+  categoryPath,
+  getCategories,
+  getSortedPosts,
+  paginate,
+  POSTS_PER_PAGE,
+} from "../../../../../utils/blog";
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  const categories = getCategories(posts);
+  const paths = [];
+  for (const category of categories) {
+    const filtered = posts.filter((post) => post.data.category === category.name);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / POSTS_PER_PAGE));
+    for (let page = 2; page <= totalPages; page += 1) {
+      paths.push({ params: { category: category.name, page: String(page) } });
+    }
+  }
+  return paths;
+}
+
+const name = Astro.params.category!;
+const all = await getSortedPosts();
+const categories = getCategories(all);
+const filtered = all.filter((post) => post.data.category === name);
+const { items, page, totalPages } = paginate(filtered, Number(Astro.params.page));
+---
+
+<BaseLayout title={`${name}の施工事例`}>
+  <SiteHeader
+    current="blog"
+    hero={{ variant: "page", image: "/img/hero-blog.webp", title: "ブログ（施工事例）" }}
+  />
+
+  <main>
+    <section class="section">
+      <div class="section__inner" style="padding-top:64px;padding-bottom:0">
+        <BlogList
+          posts={items}
+          categories={categories}
+          currentCategory={name}
+          page={page}
+          totalPages={totalPages}
+          basePath={categoryPath(name)}
+        />
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

@@ -1,0 +1,95 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import BeforeAfter from "../../components/BeforeAfter.astro";
+import { getEyecatchUrl } from "../../utils/blog";
+
+export async function getStaticPaths() {
+  const services = await getCollection("services");
+  return services.map((service) => ({ params: { slug: service.id }, props: { service } }));
+}
+
+const { service } = Astro.props;
+const { Content } = await render(service);
+
+const gallery = service.data.before_after ?? [];
+const priceTable = service.data.price_table ?? [];
+const hasDamageColumn = priceTable.some((row) => row.note);
+
+const PRICE_DISCLAIMER =
+  "※価格は目安です。損傷の程度により変動します。お見積りは無料ですのでお気軽にご相談ください。";
+---
+
+<BaseLayout
+  title={service.data.title}
+  description={service.data.summary}
+  ogImage={getEyecatchUrl(service)}
+>
+  <SiteHeader
+    current={service.id}
+    hero={{
+      variant: "page",
+      image: service.data.hero.src,
+      title: service.data.title,
+      overlay: service.data.hero_overlay,
+    }}
+  />
+
+  <main>
+    <article class="wrap">
+      <div class="content content--service"><Content /></div>
+    </article>
+
+    {
+      gallery.length > 0 && (
+        <section class="section section--service">
+          <div class="section__inner">
+            <h2 class="h-accent">ビフォーアフター</h2>
+            <p class="ba-note">スライダーを動かすと、施工前と施工後を見比べられます。</p>
+            <div class="ba-list">
+              {gallery.map((item) => (
+                <div class="ba-item">
+                  <h3 class="ba-item__title">{item.label}</h3>
+                  <BeforeAfter before={item.before} after={item.after} caption="" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      priceTable.length > 0 && (
+        <section class="section section--service">
+          <div class="section__inner">
+            <h2 class="h-accent">料金表</h2>
+            <table class="price-table">
+              <thead>
+                <tr>
+                  <th>メニュー</th>
+                  {hasDamageColumn && <th>損傷状態</th>}
+                  <th>施工価格</th>
+                </tr>
+              </thead>
+              <tbody>
+                {priceTable.map((row) => (
+                  <tr>
+                    <td>{row.item}</td>
+                    {hasDamageColumn && <td>{row.note}</td>}
+                    <td>{row.price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p class="price-note">{PRICE_DISCLAIMER}</p>
+          </div>
+        </section>
+      )
+    }
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

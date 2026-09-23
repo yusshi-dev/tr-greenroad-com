@@ -1,0 +1,42 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import { formatDate, isoDate } from "../../utils/date";
+import { getEyecatchUrl } from "../../utils/blog";
+import { newsLabelModifier } from "../../utils/news";
+
+export async function getStaticPaths() {
+  const news = await getCollection("news");
+  return news.map((item) => ({ params: { slug: item.id }, props: { item } }));
+}
+
+const { item } = Astro.props;
+const { Content } = await render(item);
+---
+
+<BaseLayout title={item.data.title} ogType="article" ogImage={getEyecatchUrl(item)}>
+  <SiteHeader
+    current="news"
+    hero={{ variant: "page", image: "/img/hero-interior.webp", title: "お知らせ" }}
+  />
+
+  <main>
+    <article class="wrap">
+      <header class="entry-head">
+        <div class="entry-head__meta">
+          <time datetime={isoDate(item.data.date)}>{formatDate(item.data.date)}</time>
+          <span class={`entry-head__cat entry-head__cat--${newsLabelModifier(item.data.label)}`}>
+            {item.data.label}
+          </span>
+        </div>
+        <h1 class="entry-head__title">{item.data.title}</h1>
+      </header>
+      <div class="content"><Content /></div>
+      <p class="entry-next"><a href="/news/">お知らせ一覧へ戻る</a></p>
+    </article>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

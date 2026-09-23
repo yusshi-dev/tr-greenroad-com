@@ -1,0 +1,55 @@
+---
+import { CONTACT_FORM_URL, NAV_ITEMS, SITE } from "../consts";
+import { getJstParts } from "../utils/date";
+
+const SERVICE_KEYS = ["wheel-repair", "interior-repair", "cleaning"];
+const SITE_KEYS = ["home", "news", "blog"];
+
+const serviceLinks = NAV_ITEMS.filter((item) => SERVICE_KEYS.includes(item.key));
+const siteLinks = NAV_ITEMS.filter((item) => SITE_KEYS.includes(item.key));
+
+const telHref = `tel:${SITE.phone.replace(/-/g, "")}`;
+
+/* コピーライトの年はビルド時の年（UTC でビルドされる環境でもずれないよう JST で判定する） */
+const buildYear = getJstParts(new Date()).year;
+
+interface Props {
+  /** 直前のセクションと同じ背景のとき、間の余白をなくして地続きにする */
+  flush?: boolean;
+}
+
+const { flush = false } = Astro.props;
+---
+
+<footer class={`footer${flush ? " footer--flush" : ""}`}>
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <a class="footer__logo" href="/"><img src="/img/logo.svg" alt={SITE.title} /></a>
+      <p class="footer__desc">{SITE.description}</p>
+      <p class="footer__tel">
+        お電話でのご相談 <a href={telHref}>{SITE.phone}</a>
+        <span>受付時間 {SITE.hours}</span>
+      </p>
+    </div>
+
+    <nav class="footer__nav" aria-label="フッターメニュー">
+      <div class="footer__nav-col">
+        <h2 class="footer__nav-title">サービス</h2>
+        <ul class="footer__nav-list">
+          {serviceLinks.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </div>
+      <div class="footer__nav-col">
+        <h2 class="footer__nav-title">サイト</h2>
+        <ul class="footer__nav-list">
+          {siteLinks.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          <li><a href={CONTACT_FORM_URL}>お問い合わせフォーム</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer__bottom">
+    <div class="footer__bottom-inner">(c){buildYear} TOTALREPAIR GREENROAD</div>
+  </div>
+</footer>

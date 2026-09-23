@@ -1,0 +1,34 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import BlogList from "../../components/BlogList.astro";
+import { getCategories, getSortedPosts, paginate } from "../../utils/blog";
+
+const posts = await getSortedPosts();
+const categories = getCategories(posts);
+const { items, page, totalPages } = paginate(posts, 1);
+---
+
+<BaseLayout title="ブログ（施工事例）">
+  <SiteHeader
+    current="blog"
+    hero={{ variant: "page", image: "/img/hero-blog.webp", title: "ブログ（施工事例）" }}
+  />
+
+  <main>
+    <section class="section">
+      <div class="section__inner" style="padding-top:64px;padding-bottom:0">
+        <BlogList
+          posts={items}
+          categories={categories}
+          page={page}
+          totalPages={totalPages}
+          basePath="/blog/"
+        />
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

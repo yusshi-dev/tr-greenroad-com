@@ -1,0 +1,46 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  before: ImageMetadata;
+  after: ImageMetadata;
+  caption?: string;
+}
+
+const {
+  before,
+  after,
+  caption = "スライダーを動かすと、施工前と施工後を見比べられます。",
+} = Astro.props;
+---
+
+<div class="ba-wrap">
+  <div class="ba" data-ba>
+    <Image class="ba__img ba__after" src={after} alt="施工後" width={1200} format="webp" />
+    <Image class="ba__img ba__before" src={before} alt="施工前" width={1200} format="webp" />
+    <span class="ba__line"></span>
+    <span class="ba__handle"></span>
+    <span class="ba__label ba__label--before">施工前</span>
+    <span class="ba__label ba__label--after">施工後</span>
+    <input
+      class="ba__range"
+      type="range"
+      min="0"
+      max="100"
+      value="50"
+      aria-label="施工前と施工後の比較"
+    />
+  </div>
+  {caption && <p class="ba__caption">{caption}</p>}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-ba]").forEach((el) => {
+    const range = el.querySelector<HTMLInputElement>(".ba__range");
+    if (!range) return;
+    const update = () => el.style.setProperty("--pos", range.value + "%");
+    range.addEventListener("input", update);
+    update();
+  });
+</script>

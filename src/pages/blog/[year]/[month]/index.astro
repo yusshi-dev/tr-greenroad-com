@@ -1,0 +1,52 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import SiteHeader from "../../../../components/SiteHeader.astro";
+import SiteFooter from "../../../../components/SiteFooter.astro";
+import BlogList from "../../../../components/BlogList.astro";
+import { formatMonthLabel, getJstParts } from "../../../../utils/date";
+import { getCategories, getSortedPosts, monthPath } from "../../../../utils/blog";
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  const keys = new Map<string, { year: string; month: string }>();
+  for (const post of posts) {
+    const { year, month } = getJstParts(post.data.published_at);
+    keys.set(`${year}/${month}`, { year, month });
+  }
+  return [...keys.values()].map(({ year, month }) => ({
+    params: { year, month },
+    props: { year, month },
+  }));
+}
+
+const { year, month } = Astro.props;
+const all = await getSortedPosts();
+const categories = getCategories(all);
+const posts = all.filter((post) => {
+  const parts = getJstParts(post.data.published_at);
+  return parts.year === year && parts.month === month;
+});
+---
+
+<BaseLayout title={`${formatMonthLabel(year, month)}の施工事例`}>
+  <SiteHeader
+    current="blog"
+    hero={{ variant: "page", image: "/img/hero-blog.webp", title: "ブログ（施工事例）" }}
+  />
+
+  <main>
+    <section class="section">
+      <div class="section__inner" style="padding-top:64px;padding-bottom:0">
+        <BlogList
+          posts={posts}
+          categories={categories}
+          page={1}
+          totalPages={1}
+          basePath={monthPath(year, month)}
+        />
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

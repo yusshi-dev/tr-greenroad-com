@@ -1,0 +1,261 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+
+site_url: https://tr-greenroad.com
+app_title: トータルリペア グリーンロード 管理画面
+logo_url: https://tr-greenroad.com/img/logo.svg
+
+# サイト本体と同じリポジトリの src/content/ を直接編集する
+backend:
+  name: github
+  repo: yusshi-dev/tr-greenroad-com
+  branch: main
+
+# 画像は各エントリのフォルダ（index.md と同階層）に保存する
+media_folder: ''
+public_folder: ''
+
+# アップロード時にブラウザ内で画像を最適化してから保存する。
+# 参照は自動で .webp になり、EXIF（GPS 等）は削除される。
+media_libraries:
+  all:
+    transformations:
+      raster_image:
+        format: webp
+        quality: 85
+        width: 1280
+        height: 1280
+      svg:
+        optimize: true
+    max_file_size: 20971520 # 20MB
+
+collections:
+
+  # ブログ（施工事例）
+  - name: posts
+    label: ブログ
+    label_singular: 記事
+    folder: src/content/posts
+    create: true
+    format: yaml-frontmatter
+    extension: md
+
+    # 画像は index.md と同じフォルダ（posts/<slug>/）に保存される
+    path: '{{slug}}/index'
+    media_folder: ''
+    public_folder: ''
+
+    # ファイル名は日時から自動生成する（スラッグの手入力は不要）
+    slug: "{{published_at | date('YYYY-MM-DD-HHmmss')}}"
+
+    sortable_fields:
+      fields: [published_at, title]
+      default: { field: published_at, direction: descending }
+
+    view_groups:
+      - { label: カテゴリ, field: category }
+      - { label: 年, field: published_at, pattern: '\d{4}' }
+
+    fields:
+      - { label: タイトル, name: title, widget: string }
+      - label: 公開日時
+        name: published_at
+        widget: datetime
+        input_timezone: local
+        default: '{{now}}'
+        preview: false
+      - label: カテゴリ
+        name: category
+        widget: select
+        dropdown_threshold: 1
+        options:
+          - ホイールリペア
+          - インテリアリペア
+          - ルームクリーニング
+          - ボディーの傷リペア
+          - その他のリペア
+          - VWのホイールリペア
+          - マニキュアコート
+          - イベント
+          - メンテ
+          - ツール
+          - 練習
+          - ピアノ調律
+          - ブログ
+          - 未分類
+        default: ホイールリペア
+        required: true
+        preview: false
+      - { label: 本文, name: body, widget: markdown, hint: "本文の最初の写真が一覧のアイキャッチになります" }
+
+    summary: "{{title}} ({{published_at | date('YYYY-MM-DD')}})"
+
+  # お知らせ（営業・休業・キャンペーンなど）
+  - name: news
+    label: お知らせ
+    label_singular: お知らせ
+    folder: src/content/news
+    create: true
+    format: yaml-frontmatter
+    extension: md
+
+    path: '{{slug}}/index'
+    media_folder: ''
+    public_folder: ''
+    slug: "{{date | date('YYYY-MM-DD-HHmmss')}}"
+
+    sortable_fields:
+      fields: [date, title]
+      default: { field: date, direction: descending }
+
+    fields:
+      - { label: タイトル, name: title, widget: string }
+      - label: 日付
+        name: date
+        widget: datetime
+        input_timezone: local
+        default: '{{now}}'
+      - label: 種別
+        name: label
+        widget: select
+        dropdown_threshold: 1
+        options:
+          - お知らせ
+          - キャンペーン
+          - 営業
+          - 休業
+        default: お知らせ
+        required: true
+      - { label: 本文, name: body, widget: markdown }
+
+    summary: "{{title}} ({{date | date('YYYY-MM-DD')}})"
+
+  # 固定ページ（サービス）。ページ数が決まっているので files でパスを固定する
+  - name: pages
+    label: 固定ページ
+    files:
+      - name: wheel
+        label: ホイールリペア
+        file: src/content/services/wheel/index.md
+        media_folder: ''
+        public_folder: ''
+        fields:
+          - { label: タイトル, name: title, widget: string }
+          - { label: 一覧の説明文, name: summary, widget: text }
+          - { label: 一覧の画像, name: image, widget: image }
+          - { label: ページ上部の画像, name: hero, widget: image }
+          - label: ページ上部の画像のマスキング色
+            name: hero_overlay
+            widget: select
+            dropdown_threshold: 1
+            options:
+              - { label: 緑, value: green }
+              - { label: 黒, value: black }
+              - { label: ベージュ, value: beige }
+              - { label: ネイビー, value: navy }
+            default: green
+          - label: ビフォーアフター
+            name: before_after
+            widget: list
+            required: false
+            label_singular: 施工例
+            summary: "{{fields.label}}"
+            fields:
+              - { label: 名称, name: label, widget: string }
+              - { label: 施工前の画像, name: before, widget: image }
+              - { label: 施工後の画像, name: after, widget: image }
+          - label: 料金表
+            name: price_table
+            widget: list
+            required: false
+            label_singular: 料金
+            summary: "{{fields.item}} {{fields.price}}"
+            fields:
+              - { label: メニュー, name: item, widget: string }
+              - { label: 損傷状態, name: note, widget: string, required: false }
+              - { label: 施工価格, name: price, widget: string }
+          - { label: 表示順, name: order, widget: number, value_type: int, preview: false }
+          - { label: 本文, name: body, widget: markdown }
+      - name: interior
+        label: インテリアリペア
+        file: src/content/services/interior/index.md
+        media_folder: ''
+        public_folder: ''
+        fields:
+          - { label: タイトル, name: title, widget: string }
+          - { label: 一覧の説明文, name: summary, widget: text }
+          - { label: 一覧の画像, name: image, widget: image }
+          - { label: ページ上部の画像, name: hero, widget: image }
+          - label: ページ上部の画像のマスキング色
+            name: hero_overlay
+            widget: select
+            dropdown_threshold: 1
+            options:
+              - { label: 緑, value: green }
+              - { label: 黒, value: black }
+              - { label: ベージュ, value: beige }
+              - { label: ネイビー, value: navy }
+            default: green
+          - label: ビフォーアフター
+            name: before_after
+            widget: list
+            required: false
+            label_singular: 施工例
+            summary: "{{fields.label}}"
+            fields:
+              - { label: 名称, name: label, widget: string }
+              - { label: 施工前の画像, name: before, widget: image }
+              - { label: 施工後の画像, name: after, widget: image }
+          - label: 料金表
+            name: price_table
+            widget: list
+            required: false
+            label_singular: 料金
+            summary: "{{fields.item}} {{fields.price}}"
+            fields:
+              - { label: メニュー, name: item, widget: string }
+              - { label: 損傷状態, name: note, widget: string, required: false }
+              - { label: 施工価格, name: price, widget: string }
+          - { label: 表示順, name: order, widget: number, value_type: int, preview: false }
+          - { label: 本文, name: body, widget: markdown }
+      - name: cleaning
+        label: ルームクリーニング
+        file: src/content/services/cleaning/index.md
+        media_folder: ''
+        public_folder: ''
+        fields:
+          - { label: タイトル, name: title, widget: string }
+          - { label: 一覧の説明文, name: summary, widget: text }
+          - { label: 一覧の画像, name: image, widget: image }
+          - { label: ページ上部の画像, name: hero, widget: image }
+          - label: ページ上部の画像のマスキング色
+            name: hero_overlay
+            widget: select
+            dropdown_threshold: 1
+            options:
+              - { label: 緑, value: green }
+              - { label: 黒, value: black }
+              - { label: ベージュ, value: beige }
+              - { label: ネイビー, value: navy }
+            default: green
+          - label: ビフォーアフター
+            name: before_after
+            widget: list
+            required: false
+            label_singular: 施工例
+            summary: "{{fields.label}}"
+            fields:
+              - { label: 名称, name: label, widget: string }
+              - { label: 施工前の画像, name: before, widget: image }
+              - { label: 施工後の画像, name: after, widget: image }
+          - label: 料金表
+            name: price_table
+            widget: list
+            required: false
+            label_singular: 料金
+            summary: "{{fields.item}} {{fields.price}}"
+            fields:
+              - { label: メニュー, name: item, widget: string }
+              - { label: 損傷状態, name: note, widget: string, required: false }
+              - { label: 施工価格, name: price, widget: string }
+          - { label: 表示順, name: order, widget: number, value_type: int, preview: false }
+          - { label: 本文, name: body, widget: markdown }

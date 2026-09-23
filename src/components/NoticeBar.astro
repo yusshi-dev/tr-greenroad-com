@@ -1,0 +1,21 @@
+---
+import { formatDate, isoDate } from "../utils/date";
+import { newsLabelModifier } from "../utils/news";
+
+interface Props {
+  href: string;
+  date: Date;
+  label: string;
+  title: string;
+}
+
+const { href, date, label, title } = Astro.props;
+---
+
+<div class="notice">
+  <a class="notice__inner" href={href}>
+    <span class={`notice__label notice__label--${newsLabelModifier(label)}`}>{label}</span>
+    <time class="notice__date" datetime={isoDate(date)}>{formatDate(date)}</time>
+    <span class="notice__title">{title}</span>
+  </a>
+</div>

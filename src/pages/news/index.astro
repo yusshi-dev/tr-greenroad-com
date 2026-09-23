@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import NewsList from "../../components/NewsList.astro";
+
+const news = (await getCollection("news")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const items = news.map((item) => ({
+  href: `/news/${item.id}/`,
+  date: item.data.date,
+  label: item.data.label,
+  title: item.data.title,
+}));
+---
+
+<BaseLayout title="お知らせ">
+  <SiteHeader
+    current="news"
+    hero={{ variant: "page", image: "/img/hero-interior.webp", title: "お知らせ" }}
+  />
+
+  <main>
+    <section class="section">
+      <div class="section__inner" style="padding-top:64px">
+        <NewsList items={items} />
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

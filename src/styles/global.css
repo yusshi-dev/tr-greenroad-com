@@ -1,0 +1,504 @@
+:root{
+  --theme:#3fbd94;
+  --theme-dark:#35a37f;
+  /* h3 の見出し装飾用（左バーの淡い緑と、見出し文字の濃い緑） */
+  --theme-light:#c5ebdf;
+  --theme-text:#2f5d4e;
+  --bg:#fff;
+  --bg-sub:#f8f8fa;
+  --bg-hover:#fbfbfb;
+  --text:#444;
+  --text-sub:#888;
+  --text-link:#1a0dab;
+  --border:#e3e3e3;
+  --shadow:0 4px 10px rgba(0,0,0,.04), 0 0 1px rgba(0,0,0,.1);
+  --pc:1080px;
+  --disabled:#ccc;
+
+  /* 調和数列による文字サイズ（pixelog-net と同方式）。
+     基準 1rem・分子 8 で size = 1rem * 8/(8±k) */
+  --text-s3:calc(1rem * 8 / 11); /* 0.727rem */
+  --text-s2:calc(1rem * 8 / 10); /* 0.8rem   */
+  --text-s1:calc(1rem * 8 / 9);  /* 0.889rem */
+  --text-m:1rem;                 /* 基準     */
+  --text-l1:calc(1rem * 8 / 7);  /* 1.143rem */
+  --text-l2:calc(1rem * 8 / 6);  /* 1.333rem */
+  --text-l3:calc(1rem * 8 / 5);  /* 1.6rem   */
+  --text-l4:calc(1rem * 8 / 4);  /* 2rem     */
+
+  /* お知らせ種別バッジの色（一覧・トップのバー・記事詳細で共用） */
+  --label-notice:#3fbd94;
+  --label-open:#3d8fd1;
+  --label-campaign:#d98b2b;
+  --label-closed:#c9793a;
+
+  /* お知らせ一覧のバッジ幅。最長ラベルちょうどの幅をコンポーネント側で算出して上書きする
+     （文字数 × 文字サイズ + 左右パディング 10px×2） */
+  --news-label-col:calc(6 * var(--text-s2) + 20px);
+}
+*{box-sizing:border-box}
+html{
+  scroll-behavior:smooth;
+  /* 画面幅に応じて 16px → 18px まで少し底上げし、調和数列の比率はそのままに全体を一回り大きくする */
+  font-size:clamp(100%, calc((100vw - 44em) * .003 + 100%), 112.5%);
+}
+body{
+  margin:0;
+  font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;
+  font-size:var(--text-m);
+  line-height:1.8;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+/* height:auto は必須。Astro の画像最適化は <img> に width/height 属性を付けるが、
+   その presentational hint が height を確定値にしてしまい aspect-ratio が効かなくなるため。 */
+img{display:block;max-width:100%;height:auto}
+ul{list-style:none;margin:0;padding:0}
+h1,h2,h3,h4{line-height:1.5}
+
+/* ---------- header ---------- */
+.header{background:#fff}
+.header__inner{
+  display:flex;align-items:center;
+  width:var(--pc);max-width:100%;
+  margin:0 auto;padding:16px 16px;
+  min-height:78px;
+}
+.header__logo{margin:0;font-size:0}
+.header__logo img{width:300px;height:auto}
+.header__contact{
+  margin-left:auto;
+  padding:.55em 2em;
+  color:#fff;background:var(--theme);
+  border-radius:4px;font-size:var(--text-s1);font-weight:500;
+  white-space:nowrap;
+  transition:.2s background;
+}
+.header__contact:hover{background:var(--theme-dark)}
+
+.nav{border-top:1px solid var(--border)}
+.nav__inner{
+  display:flex;justify-content:space-between;
+  width:var(--pc);max-width:100%;margin:0 auto;
+}
+.nav__item{width:16.6667%;flex-shrink:0}
+.nav__item a{position:relative;display:block;text-align:center;line-height:58px;font-size:var(--text-s1);transition:.2s color}
+/* 下線は中央から広がる（現行サイトと同じ動き）。現在のページは出したままにする。
+   幅は文字の下に収まるように少し内側へ寄せる（隣の項目のラインとつながらないように） */
+.nav__item a::after{
+  content:"";
+  position:absolute;
+  left:15%;bottom:0;
+  width:70%;height:2px;
+  background:var(--theme);
+  transform:scale(0,1);
+  transform-origin:center bottom;
+  transition:transform .2s;
+}
+.nav__item a:hover,.nav__item a.is-current{color:var(--theme)}
+.nav__item a:hover::after,
+.nav__item a.is-current::after{transform:scale(1,1)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
+.hero--home{min-height:560px}
+.hero--page{height:300px}
+.hero__bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.7)}
+.hero__overlay{
+  position:absolute;inset:0;
+  box-shadow:inset 0 20px 20px -10px rgba(0,0,0,.1);
+}
+/* マスキングの色。サービスページは frontmatter の hero_overlay で切り替える */
+.hero__overlay--green{background:rgba(83,209,168,.75)}
+.hero__overlay--black{background:rgba(0,0,0,.6)}
+.hero__overlay--beige{background:rgba(183,158,120,.78)}
+.hero__overlay--navy{background:rgba(26,45,82,.75)}
+.hero__title{
+  position:relative;z-index:2;margin:0;
+  color:#fff;font-size:var(--text-l4);font-weight:700;
+  text-shadow:0 0 10px rgba(0,0,0,.3), 0 0 20px rgba(0,0,0,.05);
+}
+.hero__content{position:relative;z-index:2;width:var(--pc);max-width:100%;padding:72px 24px}
+.hero__headline{font-size:var(--text-l4);line-height:1.35;font-weight:700;color:#fff;margin:0;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+/* 日本語は文節で折り返す（対応ブラウザのみ。未対応でも表示は同じ） */
+.hero__headline,.hero__sub{word-break:auto-phrase}
+.hero__headline span{display:inline}
+.hero__sub{font-size:var(--text-m);color:#fff;margin:18px 0 0;opacity:.95;text-shadow:0 1px 6px rgba(0,0,0,.3)}
+.hero__actions{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:30px}
+.hero__btn{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:210px;padding:11px 28px;border-radius:6px;font-size:var(--text-m);font-weight:700;line-height:1.35;transition:.2s}
+.hero__btn span{font-size:var(--text-s2);font-weight:500;opacity:.85}
+.hero__btn--primary{background:#fff;color:#1f7a5a;box-shadow:0 8px 20px rgba(0,0,0,.18)}
+.hero__btn--primary:hover{background:#effdf7}
+.hero__btn--ghost{color:#fff;border:1.5px solid rgba(255,255,255,.85)}
+.hero__btn--ghost:hover{background:rgba(255,255,255,.16)}
+
+/* ---------- section ---------- */
+.section:nth-of-type(even){background:var(--bg-sub)}
+/* サービスページのビフォーアフター・料金表：本文と地続きの白背景にして、上下の余白を詰める */
+.section.section--service{background:transparent}
+.section--service > .section__inner{padding-top:56px;padding-bottom:56px}
+.section__inner{width:var(--pc);max-width:100%;margin:0 auto;padding:96px 16px}
+.section__title{text-align:center;font-size:var(--text-l3);font-weight:700;margin:0 0 36px}
+.section__title::after{
+  content:"";display:block;width:30px;height:3px;margin:24px auto 0;
+  background:var(--border);border-radius:3px;
+}
+
+/* ---------- heading with accent (サービスページの見出し) ---------- */
+/* 本文中の h2 と、ビフォーアフター・料金表の見出しで共用。
+   上下の罫線＋斜めストライプ（緑はテーマ色 --theme に合わせている） */
+.content.content--service h2,
+.h-accent{
+  font-size:var(--text-l3);
+  color:var(--theme);
+  text-align:center;
+  padding:.25em;
+  border-top:2px solid var(--theme);
+  border-bottom:2px solid var(--theme);
+  background:repeating-linear-gradient(-45deg,#f2fbf7,#f2fbf7 3px,#e6f6ef 3px,#e6f6ef 7px);
+}
+.content.content--service h2{margin:3em 0 1.2em}
+.content.content--service h2:first-child{margin-top:0}
+
+/* 本文中の施工写真（施工前 → 施工後 を2枚並べる） */
+.content--service p > img{width:100%;max-width:460px;margin:1.2em auto}
+.content--service p:has(> img + img){display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:1.4em 0}
+.content--service p:has(> img + img) > img{max-width:none;margin:0}
+
+/* サービスページの h3（h2 の下位見出し）。左のアクセントバー（濃緑＋淡緑）で階層を示す */
+.content--service h3{
+  position:relative;
+  font-size:var(--text-l1);
+  color:var(--theme-text);
+  margin:2.4em 0 .9em;
+  padding:10px 20px;
+  border-left:6px solid var(--theme);
+}
+/* 左線のすぐ右に重ねる淡い緑の帯 */
+.content--service h3::before{
+  content:"";
+  display:block;
+  position:absolute;
+  left:0;
+  top:0;
+  width:6px;
+  height:100%;
+  background:var(--theme-light);
+}
+.h-accent{margin:0 0 1.5em}
+
+/* ---------- service list (editorial) ---------- */
+.svc-list{display:grid}
+.svcrow{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:56px 0;border-bottom:1px solid var(--border)}
+.svcrow:first-child{padding-top:0}
+.svcrow:last-child{padding-bottom:0;border-bottom:0}
+.svcrow__media img{width:100%;aspect-ratio:2/1;object-fit:cover;display:block}
+.svcrow__title{font-size:var(--text-l2);font-weight:700;margin:0 0 16px}
+.svcrow__body p{margin:0 0 18px;font-size:var(--text-s1)}
+.svcrow__link{display:inline-block;padding:11px 32px;border:1px solid var(--theme);border-radius:4px;color:var(--theme);font-size:var(--text-s1);font-weight:500;transition:background .2s, color .2s}
+.svcrow__link:hover{background:var(--theme);color:#fff}
+
+/* ---------- notice bar ---------- */
+.notice{background:var(--bg-sub);border-bottom:1px solid var(--border)}
+.notice__inner{
+  display:flex;align-items:center;gap:16px;
+  width:var(--pc);max-width:100%;margin:0 auto;
+  padding:12px 16px;font-size:var(--text-s1);transition:background .2s;
+}
+.notice__inner:hover{background:var(--bg-hover)}
+.notice__label{flex-shrink:0;font-size:var(--text-s2);line-height:1.7;padding:0 10px;border-radius:3px;color:#fff;background:var(--label-notice);font-weight:500}
+.notice__label--open{background:var(--label-open)}
+.notice__label--campaign{background:var(--label-campaign)}
+.notice__label--closed{background:var(--label-closed)}
+.notice__date{color:var(--text-sub);white-space:nowrap}
+.notice__title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .2s}
+.notice__inner:hover .notice__title{color:var(--theme)}
+
+/* ---------- news list ---------- */
+.news-list{margin:0}
+/* 日付 / バッジ / タイトルの3列。バッジ列は固定幅（--news-label-col = 最長ラベルちょうど）で、
+   バッジはその列いっぱいに広がるので、バッジ幅は常に一定・タイトルの左端も揃う。
+   ※ トラックを max-content にすると最長バッジの幅に育たないため固定幅にしている */
+.news-list__item{
+  display:grid;grid-template-columns:auto var(--news-label-col) minmax(0,1fr);
+  align-items:baseline;gap:18px;padding:16px 12px;
+  border-bottom:1px solid var(--border);transition:background .2s;
+}
+.news-list__item:first-child{border-top:1px solid var(--border)}
+.news-list__item:hover{background:var(--bg-hover)}
+.news-list__date{color:var(--text-sub);font-size:var(--text-s1);white-space:nowrap}
+.news-list__label{
+  text-align:center;white-space:nowrap;
+  font-size:var(--text-s2);line-height:1.6;padding:0 10px;
+  border-radius:3px;color:#fff;background:var(--label-notice);font-weight:500;
+}
+.news-list__label--open{background:var(--label-open)}
+.news-list__label--campaign{background:var(--label-campaign)}
+.news-list__label--closed{background:var(--label-closed)}
+.news-list__title{transition:.2s color}
+.news-list__item:hover .news-list__title{color:var(--theme)}
+.more-link{text-align:center;margin-top:36px}
+.more-link a{
+  display:inline-block;padding:10px 36px;
+  border:1px solid var(--theme);border-radius:4px;
+  color:var(--theme);font-size:var(--text-s1);font-weight:500;
+  transition:background .2s, color .2s;
+}
+.more-link a:hover{background:var(--theme);color:#fff}
+
+/* ---------- before / after ---------- */
+.ba-wrap{max-width:760px;margin:0 auto}
+.ba{position:relative;overflow:hidden;border-radius:6px;aspect-ratio:4/3;--pos:50%;box-shadow:var(--shadow);user-select:none;background:var(--bg-sub)}
+.ba__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ba__before{clip-path:inset(0 calc(100% - var(--pos)) 0 0)}
+.ba__line{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.35)}
+.ba__handle{position:absolute;top:50%;left:var(--pos);width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;gap:2px}
+.ba__handle::before,.ba__handle::after{content:"";width:7px;height:7px;border-top:2px solid #999;border-right:2px solid #999}
+.ba__handle::before{transform:rotate(-135deg)}
+.ba__handle::after{transform:rotate(45deg)}
+.ba__label{position:absolute;bottom:12px;font-size:var(--text-s2);color:#fff;background:rgba(0,0,0,.5);padding:2px 10px;border-radius:3px}
+.ba__label--before{left:12px}
+.ba__label--after{right:12px}
+.ba__range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize}
+.ba__caption{text-align:center;color:var(--text-sub);font-size:var(--text-s1);margin:16px 0 0}
+
+/* 複数のビフォーアフターを並べる（サービスページ） */
+.ba-note{margin:0 0 40px;text-align:center;color:var(--text-sub);font-size:var(--text-s1)}
+.ba-list{display:grid;grid-template-columns:repeat(2,1fr);gap:44px 40px}
+.ba-item{min-width:0}
+.ba-item__title{margin:0 0 14px;font-size:var(--text-l1);font-weight:700;text-align:center}
+
+/* ---------- flow (steps) ---------- */
+.flow{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;list-style:none;margin:0;padding:0}
+.flow::before{content:"";position:absolute;top:22px;left:12.5%;right:12.5%;height:2px;background:var(--border)}
+.flow__item{position:relative;padding-top:60px;text-align:center}
+.flow__num{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:1;width:44px;height:44px;border-radius:50%;background:var(--theme);color:#fff;font-weight:700;font-size:var(--text-m);display:flex;align-items:center;justify-content:center}
+.flow__title{font-size:var(--text-m);font-weight:700;margin:0 0 8px}
+.flow__text{font-size:var(--text-s1);margin:0;color:var(--text)}
+.flow__note{text-align:center;font-size:var(--text-s2);color:var(--text-sub);margin:40px 0 0}
+
+/* ---------- contact ---------- */
+.contact{padding-bottom:64px}
+.contact__detail{margin:32px 0;font-size:var(--text-l1);text-align:center}
+.contact__wrapper{
+  display:flex;justify-content:space-between;gap:24px;
+  width:var(--pc);max-width:100%;margin:0 auto 64px;
+}
+.contact__col{width:49%;text-align:center}
+.contact__col h3{margin:16px 0 8px;font-size:var(--text-l2)}
+.contact__phone{font-size:var(--text-l4);font-weight:700;letter-spacing:.02em}
+.contact__time{color:var(--text-sub);font-size:var(--text-s1)}
+.contact__link{color:var(--text-link);text-decoration:underline}
+.map{width:100%;height:400px;border:0;display:block}
+
+/* ---------- article / content ---------- */
+.wrap{width:var(--pc);max-width:100%;margin:0 auto;padding:0 16px}
+.content{padding:56px 0 0;font-size:var(--text-m);text-align:justify}
+.content h2{font-size:var(--text-l3);margin:2.2em 0 1em;padding-bottom:.3em;border-bottom:1px solid var(--border)}
+.content h3{font-size:var(--text-l1);margin:2em 0 1em}
+.content p{margin:1.5em 0}
+.content img{border-radius:4px;margin:1em 0}
+.content ul{margin:1.5em 0 1.5em 1.4em;list-style:disc}
+.content li{margin:.4em 0}
+.content strong{background:linear-gradient(transparent 40%,#ffdd9f 40%)}
+.content .note{font-size:var(--text-s1);color:var(--text-sub)}
+
+/* ---------- 料金表（本文中の表とサービスページの料金表で共用） ---------- */
+.content table,
+.price-table{width:100%;border-collapse:collapse;margin:1.5em 0;font-size:var(--text-s1)}
+.content th,.content td,
+.price-table th,.price-table td{border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:middle}
+.content thead th,
+.price-table thead th{background:var(--theme);color:#fff;font-weight:500;text-align:center;white-space:nowrap}
+.content tbody tr:nth-child(even),
+.price-table tbody tr:nth-child(even){background:var(--bg-sub)}
+.content tbody td:first-child,
+.price-table tbody td:first-child{font-weight:700}
+.content tbody td:last-child,
+.price-table tbody td:last-child{color:var(--theme);font-weight:700;white-space:nowrap}
+.price-note{margin:1.2em 0 0;color:var(--text-sub);font-size:var(--text-s1)}
+
+/* ---------- blog list ---------- */
+.blog-filter{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;margin-bottom:40px;font-size:var(--text-s1)}
+.blog-filter a{color:var(--text-sub)}
+.blog-filter a:hover,.blog-filter a.is-current{color:var(--theme);font-weight:700}
+.post-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.post-card__link{
+  display:flex;flex-direction:column;height:100%;
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;background:#fff;
+  box-shadow:var(--shadow);transition:transform .2s ease, box-shadow .2s ease;
+}
+.post-card__link:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.08)}
+.post-card__thumb{aspect-ratio:16/10;background:var(--bg-sub);overflow:hidden}
+.post-card__thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.post-card__link:hover .post-card__thumb img{transform:scale(1.05)}
+.post-card__body{padding:14px 16px 18px}
+.post-card__meta{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.post-card__date{color:var(--text-sub);font-size:var(--text-s2)}
+.post-card__cat{font-size:var(--text-s2);color:var(--theme);border:1px solid currentColor;border-radius:3px;padding:0 8px;line-height:1.7}
+.post-card__title{margin:0;font-size:var(--text-m);font-weight:700;line-height:1.55;transition:color .2s}
+.post-card__link:hover .post-card__title{color:var(--theme)}
+.pager{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:48px;font-size:var(--text-s1)}
+.pager a{color:var(--text-sub)}
+.pager a:hover{color:var(--theme)}
+.pager__disabled{color:var(--disabled)}
+/* 現在のページは select で選べるようにする（総ページ数を右に添える） */
+.pager__pages{display:flex;align-items:center;gap:8px}
+.pager__select{
+  padding:6px 8px;
+  color:var(--text);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:4px;
+  font-family:inherit;font-size:var(--text-s1);
+  cursor:pointer;
+}
+.pager__select:hover{border-color:var(--theme)}
+.pager__select:focus{outline:2px solid var(--theme);outline-offset:1px}
+.pager__total{color:var(--text-sub)}
+
+/* ---------- page header (article meta) ---------- */
+/* 上余白は記事ページ共通のコンテナ（wrap）側で持つので、ここでは付けない */
+.entry-head__meta{display:flex;gap:14px;align-items:center;margin-bottom:10px;color:var(--text-sub);font-size:var(--text-s1)}
+.entry-head__title{font-size:var(--text-l3);font-weight:700;margin:0}
+/* お知らせの記事は種別ごとに色を変える（枠線と文字色が currentColor で連動する） */
+.entry-head__cat{font-size:var(--text-s2);color:var(--theme);border:1px solid currentColor;border-radius:3px;padding:0 8px;line-height:1.7}
+.entry-head__cat--notice{color:var(--label-notice)}
+.entry-head__cat--open{color:var(--label-open)}
+.entry-head__cat--campaign{color:var(--label-campaign)}
+.entry-head__cat--closed{color:var(--label-closed)}
+/* 記事末の「ブログ一覧へ戻る」はゴーストボタンにする（ホバーで塗りつぶし） */
+.entry-next{margin:56px 0 0;font-size:var(--text-s1)}
+.entry-next a{
+  display:inline-block;
+  padding:.7em 2em;
+  color:var(--theme);
+  border:1.5px solid var(--theme);
+  border-radius:4px;
+  font-weight:500;
+  transition:background .2s,color .2s;
+}
+.entry-next a:hover{background:var(--theme);color:#fff}
+
+/* ---------- article 2-column layout ---------- */
+/* 本文とサイドバーの間は広めに取る（サイドバーは少し狭く） */
+.article-layout{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:64px;align-items:start}
+.article-main{min-width:0}
+/* 記事ページの上余白は左右のカラムに付けず、共通のコンテナで持つ（一覧ページと同じ64px） */
+.wrap:has(> .article-layout),
+.wrap:has(> .entry-head){padding-top:64px}
+.sidebar__widget + .sidebar__widget{margin-top:40px}
+.sidebar__title{font-size:var(--text-s1);font-weight:700;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.sidebar__posts{font-size:var(--text-s1)}
+.sidebar__posts li{padding:8px 0}
+.sidebar__posts a{display:block;transition:color .2s}
+.sidebar__posts a:hover{color:var(--theme)}
+.sidebar__posts time{display:block;color:var(--text-sub);font-size:var(--text-s2);margin-bottom:2px}
+.sidebar__list{font-size:var(--text-s1)}
+.sidebar__list li{padding:7px 0}
+.sidebar__list a{display:flex;justify-content:space-between;gap:12px;align-items:baseline;transition:color .2s}
+.sidebar__list a:hover{color:var(--theme)}
+.sidebar__count{color:var(--text-sub);font-size:var(--text-s2);flex-shrink:0}
+/* 月別アーカイブは件数が増えると長くなるため、select で選ぶ形にする */
+.sidebar__select{
+  width:100%;
+  padding:9px 10px;
+  color:var(--text);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:4px;
+  font-family:inherit;font-size:var(--text-s1);
+  cursor:pointer;
+}
+.sidebar__select:hover{border-color:var(--theme)}
+.sidebar__select:focus{outline:2px solid var(--theme);outline-offset:1px}
+
+/* ---------- footer ---------- */
+.footer{margin-top:80px;background:var(--bg-sub);border-top:1px solid var(--border);font-size:var(--text-s1)}
+/* 直前のセクションと背景が同じときは余白を作らず、区切りは border-top に任せる */
+.footer.footer--flush{margin-top:0}
+.footer__inner{
+  display:flex;justify-content:space-between;gap:48px;flex-wrap:wrap;
+  width:var(--pc);max-width:100%;margin:0 auto;padding:56px 16px 48px;
+}
+.footer__brand{max-width:420px}
+.footer__logo{display:inline-block;margin:0 0 16px}
+.footer__logo img{width:240px;height:auto}
+.footer__desc{margin:0 0 18px;color:var(--text-sub);font-size:var(--text-s2);line-height:1.9}
+.footer__tel{margin:0;font-size:var(--text-l1);font-weight:700}
+.footer__tel a{color:var(--theme)}
+.footer__tel a:hover{text-decoration:underline}
+.footer__tel span{display:block;margin-top:2px;font-size:var(--text-s2);font-weight:400;color:var(--text-sub)}
+.footer__nav{display:flex;gap:64px;flex-wrap:wrap}
+.footer__nav-title{margin:0 0 14px;font-size:var(--text-s1);font-weight:700}
+.footer__nav-list li{margin:0 0 10px}
+.footer__nav-list a{color:var(--text-sub);transition:color .2s}
+.footer__nav-list a:hover{color:var(--theme)}
+.footer__bottom{border-top:1px solid var(--border)}
+.footer__bottom-inner{
+  width:var(--pc);max-width:100%;margin:0 auto;padding:20px 16px;
+  text-align:center;color:var(--text-sub);font-size:var(--text-s2);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .post-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+  /* 1カラムになるので、サイドバーとの間隔は行間（gap）で持つ */
+  .article-layout{grid-template-columns:1fr;gap:88px}
+  .flow{grid-template-columns:repeat(2,1fr);gap:36px 24px}
+  .flow::before{display:none}
+  .svcrow{grid-template-columns:1fr;gap:24px}
+  .ba-list{grid-template-columns:1fr;gap:36px}
+}
+@media (max-width:1080px){
+  .section__inner{padding:72px 24px}
+}
+@media (max-width:767px){
+  body{font-size:var(--text-s1)}
+  .header__inner{padding:12px 16px;min-height:64px}
+  .header__logo img{width:180px}
+  /* お問い合わせボタンはヘッダー内に並べる（スマートフォンでは幅を詰める） */
+  .header__contact{padding:.5em 1em;font-size:var(--text-s2)}
+  .nav__inner{flex-wrap:wrap}
+  /* 3列に並ぶため、長いラベル（ブログ（施工事例）など）が折り返さないよう文字を少し小さくする */
+  .nav__item{width:33.3333%}
+  .nav__item a{line-height:46px;font-size:var(--text-s2)}
+  .hero--home{height:auto;min-height:0}
+  .hero--page{height:200px}
+  .hero__title{font-size:var(--text-l2)}
+  /* キャッチコピーはモバイルでは文単位で改行する */
+  .hero__headline{font-size:var(--text-l3)}
+  .hero__headline span{display:block}
+  .hero__content{padding:48px 20px}
+  .hero__actions{flex-direction:column;align-items:stretch}
+  .hero__btn{width:100%;min-width:0}
+  .section__inner{padding:56px 16px}
+  .section--service > .section__inner{padding-top:40px;padding-bottom:40px}
+  .section__title{font-size:var(--text-l2)}
+  .flow{grid-template-columns:1fr;gap:28px}
+  .flow__item{padding-top:0;padding-left:60px;text-align:left}
+  .flow__num{left:0;top:0;transform:none;width:40px;height:40px}
+  .svcrow{padding:40px 0}
+  .news-list__item{gap:12px}
+  .contact__wrapper{flex-direction:column;margin-bottom:48px}
+  .contact__col{width:100%}
+  .contact__phone{font-size:var(--text-l3)}
+  .post-grid{grid-template-columns:1fr;gap:18px}
+  .entry-head__title{font-size:var(--text-l2)}
+  .footer{margin-top:56px}
+  .footer__inner{flex-direction:column;gap:32px;padding:40px 16px 32px}
+  .footer__logo img{width:200px}
+  .footer__nav{gap:40px}
+  /* 見出し・料金表はスマートフォンでも収まるように詰める */
+  .content--service h2,
+  .h-accent{padding:.25em .6em}
+  .h-accent{margin-bottom:1.2em}
+  .content table,
+  .price-table{font-size:var(--text-s2)}
+  .content th,.content td,
+  .price-table th,.price-table td{padding:8px 6px}
+  .ba-note{margin-bottom:28px}
+  .content--service p:has(> img + img){gap:8px}
+}

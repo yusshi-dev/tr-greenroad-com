@@ -1,0 +1,65 @@
+---
+import { CONTACT_FORM_URL, NAV_ITEMS, SITE } from "../consts";
+
+interface Props {
+  current?: string;
+  hero?:
+    | { variant: "home"; image: string }
+    | { variant: "page"; image: string; title: string; overlay?: string };
+}
+
+const { current, hero } = Astro.props;
+
+const telHref = `tel:${SITE.phone.replace(/-/g, "")}`;
+---
+
+<header class="header">
+  <div class="header__inner">
+    <h1 class="header__logo">
+      <a href="/"><img src="/img/logo.svg" alt={SITE.title} /></a>
+    </h1>
+    <a class="header__contact" href="/#contact">お問い合わせ</a>
+  </div>
+  <nav class="nav">
+    <ul class="nav__inner">
+      {
+        NAV_ITEMS.map((item) => (
+          <li class="nav__item">
+            <a href={item.href} class={current === item.key ? "is-current" : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  {
+    hero && hero.variant === "home" && (
+      <div class="hero hero--home">
+        <div class="hero__bg" style={`background-image:url(${hero.image})`} />
+        <div class="hero__overlay hero__overlay--green" />
+        <div class="hero__content">
+          <p class="hero__headline"><span>ガリキズも、コゲ穴も。</span><span>直して乗り続ける。</span></p>
+          <p class="hero__sub">滋賀県甲賀市。出張・配送での修理にも対応しています。</p>
+          <div class="hero__actions">
+            <a class="hero__btn hero__btn--primary" href={telHref}>
+              電話で相談する<span>{SITE.phone}</span>
+            </a>
+            <a class="hero__btn hero__btn--ghost" href={CONTACT_FORM_URL}>写真で無料見積り</a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    hero && hero.variant === "page" && (
+      <div class="hero hero--page">
+        <div class="hero__bg" style={`background-image:url(${hero.image})`} />
+        <div class={`hero__overlay hero__overlay--${hero.overlay ?? "green"}`} />
+        <h1 class="hero__title">{hero.title}</h1>
+      </div>
+    )
+  }
+</header>

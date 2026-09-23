@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import SiteHeader from "../../../components/SiteHeader.astro";
+import SiteFooter from "../../../components/SiteFooter.astro";
+import BlogList from "../../../components/BlogList.astro";
+import { getCategories, getSortedPosts, paginate, POSTS_PER_PAGE } from "../../../utils/blog";
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+  return Array.from({ length: totalPages - 1 }, (_, i) => ({
+    params: { page: String(i + 2) },
+  }));
+}
+
+const posts = await getSortedPosts();
+const categories = getCategories(posts);
+const { items, page, totalPages } = paginate(posts, Number(Astro.params.page));
+---
+
+<BaseLayout title="ブログ（施工事例）">
+  <SiteHeader
+    current="blog"
+    hero={{ variant: "page", image: "/img/hero-blog.webp", title: "ブログ（施工事例）" }}
+  />
+
+  <main>
+    <section class="section">
+      <div class="section__inner" style="padding-top:64px;padding-bottom:0">
+        <BlogList
+          posts={items}
+          categories={categories}
+          page={page}
+          totalPages={totalPages}
+          basePath="/blog/"
+        />
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>

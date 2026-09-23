@@ -1,0 +1,25 @@
+---
+import { CONTACT_FORM_URL, MAP_EMBED_URL, SITE } from "../consts";
+---
+
+<section class="section" id="contact">
+  <div class="section__inner contact">
+    <h2 class="section__title">お問い合わせ</h2>
+    <p class="contact__detail">ご相談・お見積りは無料です。お気軽にお問い合わせください。</p>
+    <div class="contact__wrapper">
+      <div class="contact__col">
+        <h3>電話</h3>
+        <div class="contact__phone">{SITE.phone}</div>
+        <div class="contact__time">受付時間 {SITE.hours}</div>
+      </div>
+      <div class="contact__col">
+        <h3>インターネット</h3>
+        <p>
+          <a class="contact__link" href={CONTACT_FORM_URL}>お問い合わせフォーム</a>より24時間受け付けております。<br
+          />添付写真でのお見積りも可能です。
+        </p>
+      </div>
+    </div>
+    <iframe class="map" src={MAP_EMBED_URL} loading="lazy"></iframe>
+  </div>
+</section>

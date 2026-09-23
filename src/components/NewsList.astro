@@ -1,0 +1,42 @@
+---
+import { formatDate, isoDate } from "../utils/date";
+import { newsLabelModifier } from "../utils/news";
+
+export interface NewsItem {
+  href: string;
+  date: Date;
+  label: string;
+  title: string;
+}
+
+interface Props {
+  items: NewsItem[];
+}
+
+const { items } = Astro.props;
+
+/* バッジの幅を「最も長いラベル」の幅に揃える（＝バッジ列の幅）。
+   幅は実ラベルの最大文字数と左右パディング(10px×2)から算出する。 */
+const labelColumns = Math.max(4, ...items.map((item) => [...item.label].length));
+---
+
+<ul
+  class="news-list"
+  style={`--news-label-col:calc(${labelColumns} * var(--text-s2) + 20px)`}
+>
+  {
+    items.map((item) => (
+      <li class="news-list__item">
+        <time class="news-list__date" datetime={isoDate(item.date)}>
+          {formatDate(item.date)}
+        </time>
+        <span class={`news-list__label news-list__label--${newsLabelModifier(item.label)}`}>
+          {item.label}
+        </span>
+        <a class="news-list__title" href={item.href}>
+          {item.title}
+        </a>
+      </li>
+    ))
+  }
+</ul>

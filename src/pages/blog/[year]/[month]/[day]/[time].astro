@@ -1,0 +1,135 @@
+---
+import { render } from "astro:content";
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import SiteHeader from "../../../../../components/SiteHeader.astro";
+import SiteFooter from "../../../../../components/SiteFooter.astro";
+import { formatDate, formatMonthLabel, getJstParts, isoDate } from "../../../../../utils/date";
+import {
+  categoryPath,
+  getEyecatchUrl,
+  getSortedPosts,
+  getYearMonths,
+  monthPath,
+  postPath,
+} from "../../../../../utils/blog";
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts();
+  return posts.map((post) => {
+    const { year, month, day, hour, minute, second } = getJstParts(post.data.published_at);
+    return {
+      params: { year, month, day, time: `${hour}${minute}${second}` },
+      props: { post },
+    };
+  });
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const posts = await getSortedPosts();
+const recent = posts.slice(0, 5);
+
+const categoryCounts = new Map<string, number>();
+for (const p of posts) {
+  categoryCounts.set(p.data.category, (categoryCounts.get(p.data.category) ?? 0) + 1);
+}
+
+const yearMonths = getYearMonths(posts);
+const { year: postYear, month: postMonth } = getJstParts(post.data.published_at);
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.title}
+  ogType="article"
+  ogImage={getEyecatchUrl(post)}
+>
+  <SiteHeader
+    current="blog"
+    hero={{ variant: "page", image: "/img/hero-blog.webp", title: "ブログ（施工事例）" }}
+  />
+
+  <main>
+    <div class="wrap">
+      <div class="article-layout">
+        <article class="article-main">
+          <header class="entry-head">
+            <div class="entry-head__meta">
+              <time datetime={isoDate(post.data.published_at)}>
+                {formatDate(post.data.published_at)}
+              </time>
+              <span class="entry-head__cat">{post.data.category}</span>
+            </div>
+            <h1 class="entry-head__title">{post.data.title}</h1>
+          </header>
+          <div class="content"><Content /></div>
+          <p class="entry-next"><a href="/blog/">ブログ一覧へ戻る</a></p>
+        </article>
+
+        <aside class="sidebar">
+          <div class="sidebar__widget">
+            <h3 class="sidebar__title">最新記事</h3>
+            <ul class="sidebar__posts">
+              {
+                recent.map((p) => (
+                  <li>
+                    <a href={postPath(p)}>
+                      <time datetime={isoDate(p.data.published_at)}>
+                        {formatDate(p.data.published_at)}
+                      </time>
+                      {p.data.title}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="sidebar__widget">
+            <h3 class="sidebar__title">カテゴリ</h3>
+            <ul class="sidebar__list">
+              {
+                [...categoryCounts].map(([name, count]) => (
+                  <li>
+                    <a href={categoryPath(name)}>
+                      {name}
+                      <span class="sidebar__count">{count}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="sidebar__widget">
+            <h3 class="sidebar__title">月別アーカイブ</h3>
+            <select class="sidebar__select" id="month-archive" aria-label="月別アーカイブ">
+              {
+                yearMonths.map((ym) => (
+                  <option
+                    value={monthPath(ym.year, ym.month)}
+                    selected={ym.year === postYear && ym.month === postMonth}
+                  >
+                    {formatMonthLabel(ym.year, ym.month)}（{ym.count}）
+                  </option>
+                ))
+              }
+            </select>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <SiteFooter />
+</BaseLayout>
+
+<script>
+  const monthArchive = document.getElementById("month-archive");
+  if (monthArchive instanceof HTMLSelectElement) {
+    monthArchive.addEventListener("change", () => {
+      if (monthArchive.value) window.location.href = monthArchive.value;
+    });
+  }
+</script>
